@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        <label for="joinroom"></label>
+        <input type="text" id="joinroom">
+        <button onclick="joinRoom()">
+            Join Room
+        </button>
+        <br><br><br>
+        <input type="file" id="videoInput" accept="video/*"><br>
+        <input type="file" name="" id="metaInput"><br>
+        <video id="videoPlayer" controls></video><br><br>
+        <button onclick="prevTen()">-10 Seconds</button>
+        <button onclick="playVideo()">Play</button>
+        <button onclick="nextTen()">+10 Seconds</button>
+
+        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+        <script>
+            const socket = io();
+            
+            const fileInput = document.getElementById('videoInput');
+            const metaInput = document.getElementById('metaInput');
+            const video = document.getElementById('videoPlayer');
+            var roomId;
+
+            function joinRoom() {
+                roomId = document.querySelector("#joinroom").value;
+                socket.emit("joinRoom",{roomId: roomId});
+                document.querySelector("#joinroom").value = roomId;
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                fetch("/createRoom")
+                    .then(response => response.json())
+                    .then(data => {
+                        roomId = data.roomId;
+                        socket.emit("joinRoom",{roomId: roomId});
+                        document.querySelector("#joinroom").value = roomId;
+                    });
+            });
+
+            fileInput.addEventListener('change', function() {
+            const file = this.files[0];
+                if (file) {
+                    const url = URL.createObjectURL(file);
+                    video.src = url;
+                };
+            });
+
+            metaInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    socket.emit("sendMetaData",{roomId: roomId, file: file})
+                };
+            });
+
+
+            function playVideo() {
+                socket.emit("pause",{roomId: roomId});
+            }
+
+            function nextTen() {
+                socket.emit("next10",{roomId: roomId});
+            }
+
+            function prevTen() {
+                socket.emit("prev10",{roomId: roomId});
+            }
+
+            socket.on("pauseApply", (data) => {
+                if (data.status === 1) {
+                    video.pause();
+                }
+                else {
+                    video.play();
+                };
+            });
+
+            socket.on("setDuration", (data) => {
+                duration = data.inDuration;
+                video.currentTime = duration;
+            });
+            
+        </script>
+    </body>
+</html>
