@@ -73,7 +73,9 @@ def setmetadata(data):
 @socket.on("next10")
 def add10sec(data):
     roomId = data["roomId"]
+    duration = data["duration"]
     cache = Cache[roomId]
+    cache["inDuration"] = duration
     cache["inDuration"] += 10
     if int(cache["inDuration"]) >= int(cache["videoLength"]):
         cache["inDuration"] = cache["videoLength"]
@@ -83,7 +85,9 @@ def add10sec(data):
 @socket.on("prev10")
 def rem10sec(data):
     roomId = data["roomId"]
+    duration = data["duration"]
     cache = Cache[roomId]
+    cache["inDuration"] = duration
     cache["inDuration"] -= 10
     if cache["inDuration"] <= 0:
         cache["inDuration"] = 0

@@ -65,11 +65,11 @@
             }
 
             function nextTen() {
-                socket.emit("next10",{roomId: roomId});
+                socket.emit("next10",{roomId: roomId,duration: video.currentTime});
             }
 
             function prevTen() {
-                socket.emit("prev10",{roomId: roomId});
+                socket.emit("prev10",{roomId: roomId,duration: video.currentTime});
             }
 
             socket.on("pauseApply", (data) => {
@@ -85,7 +85,7 @@
                 duration = data.inDuration;
                 video.currentTime = duration;
             });
-            
+
         </script>
     </body>
 </html>
