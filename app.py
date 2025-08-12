@@ -1,4 +1,4 @@
-from flask_socketio import join_room, emit, SocketIO
+from flask_socketio import join_room, leave_room, emit, SocketIO
 from flask import Flask, render_template, jsonify, request
 
 import pickle
@@ -24,7 +24,8 @@ def createRoom():
         "inDuration": 0,
         "md5": "",
         "numberOfUsers": 0,
-        "message": json.dumps([])
+        "message": json.dumps([]),
+        "users": json.dumps({})
     }
 
     return jsonify({"status": True, "roomId": roomId})
@@ -37,7 +38,12 @@ def joinroom(data):
     try:
         cache = Cache[roomId]
         cache["numberOfUsers"] += 1
+        users = cache["users"]
+        users = json.loads(users)
+        users[sid] = {"userName": "","muted": False}
+        cache["users"] = json.dumps(users)
         Cache[roomId] = cache
+
         
     except KeyError:
         Cache[roomId] = {
@@ -46,7 +52,8 @@ def joinroom(data):
                 "inDuration": 0,
                 "md5": "",
                 "numberOfUsers": 1,
-                "messsage": json.dumps([])
+                "messsage": json.dumps({}),
+                "users": json.dumps({sid: {"userName": "","muted": False}})
             }
     join_room(roomId)
 
@@ -56,11 +63,29 @@ def joinroom(data):
     emit("peersInRoom", {"peers": other_users}, room=sid)
 
 
+@socket.on("leaveRoom")
+def leaveroom(data):
+    roomId = data["roomId"]
+    sid = request.sid
+
+    cache = Cache[roomId]
+    users = cache["users"]
+    users = json.loads(users)
+    del users[sid]
+    cache["users"] = json.dumps(users)
+    cache[roomId] = cache
+
+    leave_room(roomId)
+
+    room_members = list(socket.server.manager.get_participants('/', roomId))
+    other_users = [user for user in room_members if user != sid]
+
+    emit("peersInRoom", {"peers": other_users}, room=sid)
+
 @socket.on('signal')
 def handle_signal(data):
     room = data['room']
-    target = data['target']  # target socket id to send signal to
-    # Send signal only to the target peer (direct signaling)
+    target = data['target']
     emit('signal', data, room=target, include_self=False)
 
 @socket.on("sendMetaData")
@@ -84,7 +109,7 @@ def setmetadata(data):
         cache["videoLength"] = int(float(fileData["duration"]))
         cache["inDuration"] = 0
         cache["md5"] = fileData["md5"]
-
+        cache["users"] = json.dumps({})
         Cache[roomId] = cache
 
 
@@ -162,6 +187,36 @@ def getoldmessages(data):
     else:
         emit("receiveOldMessages",{"messages": [],"requestedBy": name},room=roomId)
 
+
+@socket.on("mute")
+def setmute(data):
+    roomId = data["roomId"]
+    username = data["name"]
+    sid = request.sid
+
+    cache = Cache[roomId]
+    users = json.loads(cache["users"])
+    users[sid]["muted"] = not users[sid]["muted"]
+    users[sid]["userName"] = username
+    cache["users"] = json.dumps(users)
+
+    Cache[roomId] = cache
+
+@socket.on("getUsers")
+def getUsers(data):
+    roomId = data["roomId"]
+    sid = request.sid
+
+    cache = Cache[roomId]
+    users = json.loads(cache["users"])
+    users[sid]["userName"] = data["name"]
+    cache["users"] = json.dumps(users)
+    Cache[roomId] = cache
+    editedUsers = []
+    for i,(key,value) in enumerate(users.items()):
+        editedUsers.append({"name": value["userName"], "muted": value["muted"]})
+
+    emit("returnGetUsers",{"users": editedUsers},room=roomId)
 
 if __name__ == "__main__":
     socket.run(app,debug=True,port=5000, host="0.0.0.0")
