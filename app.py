@@ -1,8 +1,9 @@
-from flask import Flask, render_template, redirect, jsonify
-from flask_socketio import join_room, leave_room, emit, SocketIO
+from flask_socketio import join_room, emit, SocketIO
+from flask import Flask, render_template, jsonify
 
-import utils
 import pickle
+import utils
+import json
 
 app = Flask(__name__)
 socket = SocketIO(app)
@@ -22,7 +23,8 @@ def createRoom():
         "paused": 0,
         "inDuration": 0,
         "md5": "",
-        "numberOfUsers": 0
+        "numberOfUsers": 0,
+        "message": json.dumps([])
     }
 
     return jsonify({"status": True, "roomId": roomId})
@@ -41,7 +43,8 @@ def joinroom(data):
                 "paused": 0,
                 "inDuration": 0,
                 "md5": "",
-                "numberOfUsers": 1
+                "numberOfUsers": 1,
+                "messsage": json.dumps([])
             }
     join_room(roomId)
 
@@ -110,6 +113,42 @@ def pause(data):
     else:
         emit("pauseApply",{"status": 1}, room=roomId)
 
+@socket.on("send_message")
+def sendMessage(data):
+    roomId = data["roomId"]
+    name = data["name"]
+    message = data["message"]
+
+    cache = Cache[roomId]
+    if cache:
+        msgInfo = {
+            "name": name,
+            "message": message
+        }
+        messagesJson = json.loads(cache["message"])
+        messagesJson.append(msgInfo)
+        cache["message"] = json.dumps(messagesJson)
+        Cache[roomId] = cache
+        emit("receive_message",msgInfo,room=roomId)
+    else:
+        emit("error",{"Error": "no cache found"},room=roomId)
+
+
+@socket.on("getOldMessages")
+def getoldmessages(data):
+    roomId = data["roomId"]
+    name = data["name"]
+
+    cache = Cache[roomId]
+
+    if cache:
+        messages = json.loads(cache["message"])
+        emit("receiveOldMessages",{"messages": messages,"requestedBy": name},roomId=roomId)
+    else:
+        emit("receiveOldMessages",{"messages": [],"requestedBy": name},room=roomId)
+
+
+
 
 if __name__ == "__main__":
-    socket.run(app,debug=True)
+    socket.run(app,debug=True,port=5000)

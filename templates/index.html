@@ -1,91 +1,502 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-    </head>
-    <body>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #001223;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        center {
+            display: flex;
+            width: 100%;
+            height: 50px;
+            position: relative;
+            justify-content: center;
+            z-index: 0;
+        }
+
+        h2.title {
+            color: #fff;
+            font-family: "Nunito Sans", sans-serif;
+        }
+
+        body {
+            overflow: hidden;
+        }
+
+        main {
+            width: 100%;
+            height: 98vh;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-content: center;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+
+        div {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            align-content: center;
+            flex-wrap: wrap;
+            z-index: 99;
+            width: 50%;
+            height: auto;
+        }
+
+        input#joinroom,
+        input#nameJoiner {
+            width: 20%;
+            height: 40px;
+            border-radius: 3px;
+            border: none;
+            outline: none;
+            border: 1px solid;
+            background: #000;
+            color: #fff;
+            padding-left: 10px;
+            font-size: 18px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            margin: 30px;
+        }
+
+        input#joinroom::placeholder,
+        input#nameJoiner::placeholder {
+            color: #fff;
+            opacity: 0.4;
+        }
+
+        button.joinroom {
+            width: 15%;
+            height: 40px;
+            margin-top: 15px;
+            border: none;
+            outline: none;
+            border: 5px solid #fff;
+            background: none;
+            color: #fff;
+            font-size: 17px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            position: absolute;
+            top: 95px;
+            left: -19px;
+            margin: 50px;
+        }
+
+        button.joinroom:hover {
+            background-color: #fff;
+            color: #000;
+        }
+
+        input#videoInput {
+            background: #000;
+            color: #fff;
+            padding: 15px;
+            border: 1px solid #fff;
+            position: absolute;
+            bottom: 54px;
+            left: 0;
+        }
+
+        input#metaInput {
+            background: #000;
+            color: #fff;
+            padding: 15px;
+            border: 1px solid #fff;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        video#videoPlayer {
+            width: 800px;
+            height: 400px;
+            border-radius: 10px;
+            border: 1px solid #fff;
+            background-color: #000;
+        }
+
+        span {
+            width: 61%;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            align-content: center;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        span button {
+            width: 25%;
+            height: 50px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            background: #fff;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        button {
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: #b9b9b9;
+        }
+
+        .fun-place {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            align-content: center;
+            justify-content: center;
+            align-items: center;
+            height: 90%;
+            width: 50%;
+        }
+
+        .fun {
+            height: 70%;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            width: 80%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: flex-start;
+            align-content: flex-start;
+            align-items: center;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            color: #fff;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        .fun-controls {
+            height: 19%;
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            align-content: flex-start;
+            align-items: center;
+            width: 100%;
+            padding-top: 50px;
+        }
+
+        .fun-controls #send-fun {
+            width: 60%;
+            height: 30px;
+            border-radius: 5px;
+            border: 2px solid #fff;
+            background: #222;
+            padding-left: 5px;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .fun-controls #send-fun-btn {
+            height: 40px;
+            width: 10%;
+            margin-left: 53px;
+            background: #222;
+            color: #fff;
+            border: none;
+            outline: none;
+            border: 1px solid #fff;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .fun-controls #send-fun-btn:hover {
+            background: #111;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 10px 15px;
+            margin: 8px;
+            border-radius: 15px;
+            font-size: 15px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            animation: fadeInUp 0.3s ease both;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            font-family: "Cairo", sans-serif;
+            height: fit-content;
+            width: 50%;
+        }
+
+        /* Incoming message (left-aligned) */
+        .message.incoming {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            align-self: flex-start;
+        }
+
+        /* Outgoing message (right-aligned) */
+        .message.outgoing {
+            background: linear-gradient(135deg, #0078ff, #00c6ff);
+            border: none;
+            color: rgb(0, 0, 0);
+            align-self: flex-end;
+            box-shadow: 0 4px 12px rgba(0, 120, 255, 0.4);
+        }
+
+        /* Optional small timestamp */
+        .timestamp {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 3px;
+        }
+
+        /* Simple appear animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <h2 class="title">Video Private Room</h2>
+    </center>
+    <div id="particles-js"></div>
+    <main>
         <label for="joinroom"></label>
-        <input type="text" id="joinroom">
-        <button onclick="joinRoom()">
+        <input type="text" id="joinroom" data-aos="fade-up" data-aos-delay="100" placeholder="Enter Room ID">
+        <input type="text" id="nameJoiner" data-aos="fade-up" data-aos-delay="100" placeholder="Enter Your Name"
+            style="top: 55px;">
+        <button onclick="joinRoom()" class="joinroom" data-aos="fade-up" data-aos-delay="200">
             Join Room
         </button>
         <br><br><br>
         <input type="file" id="videoInput" accept="video/*"><br>
         <input type="file" name="" id="metaInput"><br>
-        <video id="videoPlayer" controls></video><br><br>
-        <button onclick="prevTen()">-10 Seconds</button>
-        <button onclick="playVideo()">Play</button>
-        <button onclick="nextTen()">+10 Seconds</button>
-
-        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-        <script>
-            const socket = io();
-            
-            const fileInput = document.getElementById('videoInput');
-            const metaInput = document.getElementById('metaInput');
-            const video = document.getElementById('videoPlayer');
-            var roomId;
-
-            function joinRoom() {
-                roomId = document.querySelector("#joinroom").value;
-                socket.emit("joinRoom",{roomId: roomId});
-                document.querySelector("#joinroom").value = roomId;
-            }
-
-            document.addEventListener("DOMContentLoaded", () => {
-                fetch("/createRoom")
-                    .then(response => response.json())
-                    .then(data => {
-                        roomId = data.roomId;
-                        socket.emit("joinRoom",{roomId: roomId});
-                        document.querySelector("#joinroom").value = roomId;
-                    });
-            });
-
-            fileInput.addEventListener('change', function() {
-            const file = this.files[0];
-                if (file) {
-                    const url = URL.createObjectURL(file);
-                    video.src = url;
-                };
-            });
-
-            metaInput.addEventListener('change', function() {
-                const file = this.files[0];
-                if (file) {
-                    socket.emit("sendMetaData",{roomId: roomId, file: file})
-                };
-            });
+        <div style="z-index: 1;">
+            <video data-aos="flip-left" data-aos-delay="200" id="videoPlayer" controls></video><br><br>
+            <span>
+                <button data-aos="fade-up" data-aos-delay="200" class="p10" onclick="prevTen()">-10 Seconds</button>
+                <button data-aos="fade-up" data-aos-delay="200" class="play" onclick="playVideo()"><i
+                        class="fas fa-play"></i></button>
+                <button data-aos="fade-up" data-aos-delay="200" class="n10" onclick="nextTen()">+10 Seconds</button>
+            </span>
+        </div>
+        <div class="fun-place">
+            <div class="fun" data-aos="fade-zoom-in" data-aos-delay="400" id="messages"><!-- all fun will be here -->
+                
 
 
-            function playVideo() {
-                socket.emit("pause",{roomId: roomId});
-            }
+            </div>
+            <div class="fun-controls" data-aos="fade-down" data-aos-delay="550">
+                <input type="text" id="send-fun">
+                <button type="button" id="send-fun-btn" onclick="sendMessage()">Send <i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
 
-            function nextTen() {
-                socket.emit("next10",{roomId: roomId,duration: video.currentTime});
-            }
-
-            function prevTen() {
-                socket.emit("prev10",{roomId: roomId,duration: video.currentTime});
-            }
-
-            socket.on("pauseApply", (data) => {
-                if (data.status === 1) {
-                    video.pause();
+        particlesJS("particles-js", {
+            particles: {
+                number: {
+                    value: 80,
+                    density: { enable: true, value_area: 800 }
+                },
+                color: { value: "#ffffff" },
+                shape: {
+                    type: "circle",
+                    stroke: { width: 0, color: "#000000" },
+                    polygon: { nb_sides: 5 }
+                },
+                opacity: {
+                    value: 0.7,
+                    random: true,
+                    anim: { enable: false }
+                },
+                size: {
+                    value: 3,
+                    random: true,
+                    anim: { enable: false }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#ffffff",
+                    opacity: 0.5,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
                 }
-                else {
-                    video.play();
-                };
-            });
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: false },
+                    onclick: { enable: false },
+                    resize: true
+                }
+            },
+            retina_detect: true
+        });
 
-            socket.on("setDuration", (data) => {
-                duration = data.inDuration;
-                video.currentTime = duration;
-            });
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
+        });
 
-        </script>
-    </body>
+
+        const socket = io();
+
+        const fileInput = document.getElementById('videoInput');
+        const metaInput = document.getElementById('metaInput');
+        const video = document.getElementById('videoPlayer');
+        var roomId;
+
+        function joinRoom() {
+            roomId = document.querySelector("#joinroom").value;
+            socket.emit("joinRoom", { roomId: roomId });
+            document.querySelector("#joinroom").value = roomId;
+            socket.emit("getOldMessages",{roomId: roomId, name: document.querySelector("#nameJoiner").value});
+            socket.on("receiveOldMessages", (data) => {
+                let messages = data.messages;
+                messages.forEach(msg => {
+                    addToChat(msg);
+                });
+            })
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch("/createRoom")
+                .then(response => response.json())
+                .then(data => {
+                    roomId = data.roomId;
+                    socket.emit("joinRoom", { roomId: roomId });
+                    document.querySelector("#joinroom").value = roomId;
+                });
+        });
+
+        fileInput.addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                video.src = url;
+            };
+        });
+
+        metaInput.addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                socket.emit("sendMetaData", { roomId: roomId, file: file })
+            };
+        });
+
+
+        function playVideo() {
+            socket.emit("pause", { roomId: roomId });
+        }
+
+        function nextTen() {
+            socket.emit("next10", { roomId: roomId, duration: video.currentTime });
+        }
+
+        function prevTen() {
+            socket.emit("prev10", { roomId: roomId, duration: video.currentTime });
+        }
+
+        socket.on("pauseApply", (data) => {
+            if (data.status === 1) {
+                video.pause();
+            }
+            else {
+                video.play();
+            };
+        });
+
+        socket.on("setDuration", (data) => {
+            duration = data.inDuration;
+            video.currentTime = duration;
+        });
+
+        
+        function sendMessage() {
+            const messageInput = document.querySelector("#send-fun");
+            let name = document.querySelector("#nameJoiner").value;
+            let message = messageInput.value;
+            console.log(name)
+            socket.emit("send_message",{roomId: roomId, message: message, name: name});
+            messageInput.value = "";
+        }
+
+        function addToChat(data) {
+            const box = document.getElementById("messages");
+            const msgDiv = document.createElement("div");
+            let sentMessage = data.message;
+            let senderName = data.name;
+            if (senderName == document.querySelector("#nameJoiner").value) {
+                msgDiv.className = "message outgoing";
+            }
+            else {
+                msgDiv.className = "message incoming";
+            };
+            
+            msgDiv.textContent = `[${senderName}] ${sentMessage}`;
+            box.appendChild(msgDiv);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        socket.on("receive_message", (data) => {
+            addToChat(data);
+        });
+
+
+        document.getElementById('send-fun').addEventListener('keydown', function(event) {
+        if (event.keyCode === 13 || event.key === 'Enter') {
+            event.preventDefault(); 
+            document.getElementById('send-fun-btn').click();
+        }
+        });
+    </script>
+</body>
+
 </html>
