@@ -1,5 +1,5 @@
 from flask_socketio import join_room, emit, SocketIO
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 
 import pickle
 import utils
@@ -32,6 +32,8 @@ def createRoom():
 @socket.on("joinRoom")
 def joinroom(data):
     roomId = data["roomId"]
+    sid = request.sid
+
     try:
         cache = Cache[roomId]
         cache["numberOfUsers"] += 1
@@ -47,6 +49,19 @@ def joinroom(data):
                 "messsage": json.dumps([])
             }
     join_room(roomId)
+
+    room_members = list(socket.server.manager.get_participants('/', roomId))
+    other_users = [user for user in room_members if user != sid]
+
+    emit("peersInRoom", {"peers": other_users}, room=sid)
+
+
+@socket.on('signal')
+def handle_signal(data):
+    room = data['room']
+    target = data['target']  # target socket id to send signal to
+    # Send signal only to the target peer (direct signaling)
+    emit('signal', data, room=target, include_self=False)
 
 @socket.on("sendMetaData")
 def setmetadata(data):
@@ -148,7 +163,5 @@ def getoldmessages(data):
         emit("receiveOldMessages",{"messages": [],"requestedBy": name},room=roomId)
 
 
-
-
 if __name__ == "__main__":
-    socket.run(app,debug=True,port=5000)
+    socket.run(app,debug=True,port=5000, host="0.0.0.0")
